@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QVBoxLayout,QMessageBox,QProgressBar
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 import tempfile
 from alive_progress import alive_bar
-from multiprocessing import Process, Queue
+from multiprocessing import Process
 import math
 import shutil
 
@@ -44,7 +44,6 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.organize.clicked.connect(self.organizeFiles)
         self.ui.temp.clicked.connect(lambda: self.deleteTempFiles(1))
         self.ui.choose.clicked.connect(lambda: self.deleteTempFiles(2))
-        self.queue = Queue()  # Create a Queue for inter-process communication
         self.progress = [0]
 
     def organizeFiles(self):
@@ -104,11 +103,9 @@ class MyWindow(QtWidgets.QMainWindow):
                 f.write('0')
             process = Process(target=self.deletionThread, args=(folder, temp_file_path))
             process.start()
-            # Start monitoring the queue for progress updates
-            self.monitorQueue()
+            self.monitorProgress()
 
-    def monitorQueue(self):
-        """Poll the queue for updates from the process and update the progress bar"""
+    def monitorProgress(self):
         temp_file_path = os.path.join(self.tempdir.name, 'temp_file.txt')
         f = open(temp_file_path,'r')
         try:
@@ -127,8 +124,7 @@ class MyWindow(QtWidgets.QMainWindow):
             else:
                 self.pbar.updateProgress(prog)
         f.close()
-        # Continue polling the queue
-        QtCore.QTimer.singleShot(100, self.monitorQueue)
+        QtCore.QTimer.singleShot(100, self.monitorProgress)
 
     @staticmethod
     def deletionThread(folder, tempfoname):
@@ -136,24 +132,20 @@ class MyWindow(QtWidgets.QMainWindow):
         if folder != '':
             files = os.listdir(folder)
             total_files = len(files)
-            with alive_bar(len(os.listdir(folder))) as bar:
-                for i, filename in enumerate(files):
-                    file_path = os.path.join(folder, filename)
-                    try:
-                        if os.path.isfile(file_path) or os.path.islink(file_path):
-                        	os.unlink(file_path)
-                        elif os.path.isdir(file_path):
+            for i, filename in enumerate(files):
+                file_path = os.path.join(folder, filename)
+                try:
+                    if (os.path.isfile(file_path) or os.path.islink(file_path)):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        if 'temp_file.txt' not in os.listdir(file_path):
                             shutil.rmtree(file_path)
-                    except Exception as e:
-                        print(f'Failed to delete {file_path}. Reason: {e}')
-                    prog = math.floor((i + 1) / total_files * 100)
-                    f = open(tempfoname, 'w')
-                    f.write(str(prog))
-                    f.close()
-                    bar()
-            # f = open(tempfoname, 'w')
-            # f.write(str(100))
-            # f.close()
+                except Exception as e:
+                    print(f'Failed to delete {file_path}. Reason: {e}')
+                prog = math.floor((i + 1) / total_files * 100)
+                f = open(tempfoname, 'w')
+                f.write(str(prog))
+                f.close()
 
 
 class PopUpProgressB(QtWidgets.QDialog):
