@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/c33851ce-62c4-4231-98bf-fcf407aa6bc2
 * Confirm the deletion of files in the warning dialog.
 
 ## License
-This project is licensed under the **MIT License**. See [CodeAlpha_Task_Automation/LICENSE](LICENSE) for details.
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 ## Contributing
 Contributions are welcome! If you find any bugs or have feature requests, please open an issue or submit a pull request.
