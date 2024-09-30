@@ -27,6 +27,6 @@ This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for d
 Contributions are welcome! If you find any bugs or have feature requests, please open an issue or submit a pull request.
 
 ## Acknowledgments
-**H3SHAM03** for creating this project.
-This project uses the PyQt5 library for the GUI.
-The file type categories are based on common file extensions.
+* **H3SHAM03** for creating this project.
+* This project uses the **PyQt5** library for the GUI.
+* The file type categories are based on common file extensions.
